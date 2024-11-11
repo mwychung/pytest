@@ -1,4 +1,52 @@
-"""Generic mechanism for marking and selecting python functions."""
+"""Generic mechanism for marking and selecting python functions.
+
+The pytest mark module provides option to add label or "markers" to your tests.
+It is useful for categorizing tests and tests can be run selectively or run with specific set-up based on the labels.
+
+Here is some examples showing how to use marks in your pytest tests:
+
+1. Skipping
+    Mark a test with 'skip' allows you to exclude it from test run.
+    It is useful when some tests are time-consuming, you want to skip them in a quick test cycle or
+    unnecessary in particular situation.
+
+    ```python
+    import pytest
+
+    @pytest.mark.skip(reason="Time-consuming test")
+    def test_slow_running_task():
+        assert slow_running_task() == result
+
+2. Expected to Fail
+    Mark a test with 'xfail' allows you to track the test when the test is known to fail.
+    It is useful to log test for future review while the test does not count as failed in test run.
+
+    ```python
+    import pytest
+
+    @pytest.mark.xfail(reason="Feature is under development")
+    def test_future_feature():
+        assert feature_in_progress() == expected_result
+
+
+3. Parameterized Tests
+    Mark a test with 'parametrize' allows you to test a function with multiple inputs in one go.
+    It is useful when you want to ensure the function works in various conditions.
+
+    ```python
+    import pytest
+
+    @pytest.mark.parametrize("input, expected", [(1, 2), (2, 3), (3, 4)])
+    def test_increment(input, expected):
+        assert increment(input) == expected
+
+Additional Information:
+The above examples are built-in markers. For a complete list of built-in markers and their usage,
+refer to the [official pytest documentation](https://docs.pytest.org/en/stable/how-to/mark.html).
+
+You can create custom markers. More details on custom markers can be found here:
+https://docs.pytest.org/en/stable/example/markers.html#mark-examples
+"""
 
 from __future__ import annotations
 
