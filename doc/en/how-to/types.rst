@@ -1,93 +1,135 @@
-.. _mark:
+.. _types:
 
-How to mark test functions with attributes
+How to use Types with Pytest
 ===========================================
 
-By using the ``pytest.mark`` helper you can easily set
-metadata on your test functions. You can find the full list of builtin markers
-in the :ref:`API Reference<marks ref>`. Or you can list all the markers, including
-builtin and custom, using the CLI - :code:`pytest --markers`.
-
-Here are some of the builtin markers:
-
-* :ref:`usefixtures <usefixtures>` - use fixtures on a test function or class
-* :ref:`filterwarnings <filterwarnings>` - filter certain warnings of a test function
-* :ref:`skip <skip>` - always skip a test function
-* :ref:`skipif <skipif>` - skip a test function if a certain condition is met
-* :ref:`xfail <xfail>` - produce an "expected failure" outcome if a certain
-  condition is met
-* :ref:`parametrize <parametrizemark>` - perform multiple calls
-  to the same test function.
-
-It's easy to create custom markers or to apply markers
-to whole test classes or modules. Those markers can be used by plugins, and also
-are commonly used to :ref:`select tests <mark run>` on the command-line with the ``-m`` option.
-
-See :ref:`mark examples` for examples which also serve as documentation.
-
-.. note::
-
-    Marks can only be applied to tests, having no effect on
-    :ref:`fixtures <fixtures>`.
+You can add typing in pytest functions that helps to specify what type of data a function expects and returns.
+This guide explains how to apply typing in pytest to improve code readability and prevent type-related errors.
 
 
-Registering marks
+1. Introduction to Typing
 -----------------
 
-You can register custom marks in your ``pytest.ini`` file like this:
+Typing in Python helps developers specify the expected data types of variables, function parameters, and return values.
+It improves code clarity and prevents type errors.
 
-.. code-block:: ini
+For example:
 
-    [pytest]
-    markers =
-        slow: marks tests as slow (deselect with '-m "not slow"')
-        serial
-
-or in your ``pyproject.toml`` file like this:
-
-.. code-block:: toml
-
-    [tool.pytest.ini_options]
-    markers = [
-        "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-        "serial",
-    ]
-
-Note that everything past the ``:`` after the mark name is an optional description.
-
-Alternatively, you can register new markers programmatically in a
-:ref:`pytest_configure <initialization-hooks>` hook:
 
 .. code-block:: python
+    def add(x: int, y: int) -> int:
+        return x + y
 
-    def pytest_configure(config):
-        config.addinivalue_line(
-            "markers", "env(name): mark test to run only on named environment"
-        )
+In this example:
+`x: int` and `y: int` mean that `x` and `y` should be integers.
+`-> int` shows that the function returns an integer.
+
+It makes the intentions clear that both the input and output are expected to be integers.
+
+2. Typing Test Functions
+-----------------
+Test functions in pytest check whether the code runs correctly.
+While test functions do not return values, we can add `-> None` as the return type.
+
+For example:
+
+.. code-block:: python
+    import pytest
+    def test_add() -> None:
+        result = add(2, 3)
+        assert result == 5
+
+In this function:
+`test_add` is typed as `-> None` because it does not return anything.
+The assertion `assert result == 5` checks if the result is correct.
+
+Example result:
+If the input data type is incorrect, like passing `add("2", 3)`, a `TypeError` will occur.
+
+3. Typing Fixtures
+-----------------
+Fixtures in pytest helps set up data or provides resources needed for tests.
+Adding type hints helps clarify what kind of data the fixtures returns, making code easier to read and easier to debug.
+
+* Basic Fixture Typing:
+
+If a fixture returns a number, you can specify it returns an `int`:
+
+.. code-block:: python
+    import pytest
 
 
-Registered marks appear in pytest's help text and do not emit warnings (see the next section). It
-is recommended that third-party plugins always :ref:`register their markers <registering-markers>`.
+    @pytest.fixture
+    def sample_fixture() -> int:
+        return 38
 
-.. _unknown-marks:
 
-Raising errors on unknown marks
--------------------------------
+    def test_sample_fixture(sample_fixture: int) -> None:
+        assert sample_fixture == 38
 
-Unregistered marks applied with the ``@pytest.mark.name_of_the_mark`` decorator
-will always emit a warning in order to avoid silently doing something
-surprising due to mistyped names. As described in the previous section, you can disable
-the warning for custom marks by registering them in your ``pytest.ini`` file or
-using a custom ``pytest_configure`` hook.
+In this example:
+`sample_fixture()` is typed to return an `int`.
+In `test_sample_fixture`, using typing with fixtures, it ensures the return is an integer.
+If you change the return from an integer to a string (``"42"``), the test will fail.
 
-When the ``--strict-markers`` command-line flag is passed, any unknown marks applied
-with the ``@pytest.mark.name_of_the_mark`` decorator will trigger an error. You can
-enforce this validation in your project by adding ``--strict-markers`` to ``addopts``:
 
-.. code-block:: ini
+* Typing Fixtures with Lists and Dictionaries:
+Here are the examples showing how to use List and Dict types in pytest.
+When you want to use complex data structures like lists or dictionaries, import `List` and `Dict` from Python's `typing` module to specify the types.
+Note: From Python 3.5 or later, typing module is built-in module in Python.
 
-    [pytest]
-    addopts = --strict-markers
-    markers =
-        slow: marks tests as slow (deselect with '-m "not slow"')
-        serial
+
+.. code-block:: python
+    from typing import List
+    import pytest
+
+
+    # Fixture returning a list of integers
+    @pytest.fixture
+    def sample_list() -> List[int]:
+        return [5, 10, 15]
+
+
+    def test_sample_list(sample_list: List[int]) -> None:
+        assert sum(sample_list) == 30
+In this example, `List[int]` ensures that the list contains only integers, allowing functions like sum() to operate.
+
+
+.. code-block:: python
+    from typing import Dict
+    import pytest
+
+
+    # Fixture returning a dictionary
+    @pytest.fixture
+    def sample_dict() -> Dict[str, int]:
+        return {"a": 50, "b": 100}
+
+
+    def test_sample_dict(sample_dict: Dict[str, int]) -> None:
+        assert sample_dict["a"] == 50
+In this example, `Dict[str, int]` ensures that each key is a string and each value is an integer, ensuring clarity and consistency when accessing dictionary elements by key.
+
+
+4. Typing Parameterized Tests
+----------
+`@pytest.mark.parametrize` allows developer to run the test multiple times with different sets of arguments.
+Adding types helps to maintain consistency of values, especially for complex inputs.
+
+For example, you are testing if adding 1 to `input_value` results in `expected_output` for each set of arguments.
+
+.. code-block:: python
+    import pytest
+
+
+    @pytest.mark.parametrize("input_value, expected_output", [(1, 2), (5, 6), (100, 101)])
+    def test_increment(input_value: int, expected_output: int) -> None:
+        assert input_value + 1 == expected_output
+
+In this example:
+You are expecting the type of both `input_value` and `expected_output` are integers.
+
+
+Conclusion
+----------
+Using typing in pytest helps improve readability of the tests and fixture returns, and prevent errors.
