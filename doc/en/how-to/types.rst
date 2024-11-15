@@ -15,7 +15,6 @@ It improves code clarity and prevents type errors.
 
 For example:
 
-
 .. code-block:: python
 
     def add(x: int, y: int) -> int:
