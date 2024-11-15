@@ -17,6 +17,7 @@ For example:
 
 
 .. code-block:: python
+
     def add(x: int, y: int) -> int:
         return x + y
 
@@ -34,6 +35,7 @@ While test functions do not return values, we can add `-> None` as the return ty
 For example:
 
 .. code-block:: python
+
     import pytest
 
 
@@ -58,6 +60,7 @@ Adding type hints helps clarify what kind of data the fixtures returns, making c
 If a fixture returns a number, you can specify it returns an `int`:
 
 .. code-block:: python
+
     import pytest
 
 
@@ -82,6 +85,7 @@ Note: From Python 3.5 or later, typing module is built-in module in Python.
 
 
 .. code-block:: python
+
     from typing import List
     import pytest
 
@@ -98,6 +102,7 @@ In this example, `List[int]` ensures that the list contains only integers, allow
 
 
 .. code-block:: python
+
     from typing import Dict
     import pytest
 
@@ -121,6 +126,7 @@ Adding types helps to maintain consistency of values, especially for complex inp
 For example, you are testing if adding 1 to `input_value` results in `expected_output` for each set of arguments.
 
 .. code-block:: python
+
     import pytest
 
 
